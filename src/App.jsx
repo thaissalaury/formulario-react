@@ -4,6 +4,7 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import FormularioCadastro from './components/FormularioCadastro'
+import Contador from './components/Contador'
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
       <h1>olá mundo!!</h1>
       <p>Primeira aula de react</p>
       <FormularioCadastro />
+      <Contador/>
     </div>
   )
 }
