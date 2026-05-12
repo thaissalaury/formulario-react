@@ -1,9 +1,9 @@
-function InputField ({label, type, name}){
+function InputField ({label, type, name, placeholder }){
 
     return (
         <div>
             <label>{label}</label>
-            <input type ={type} nome={name}/>
+            <input type ={type} nome={name} placeholder={placeholder}/>
         </div>
     )
 }
