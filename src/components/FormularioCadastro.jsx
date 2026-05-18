@@ -15,8 +15,9 @@ function FormularioCadastro() {
     // const[sucesso, setSucesso] = useState(false)
     const[user, setUser] = useState({nome: "", email: "", telefone: "", segundoTelefone:""})
     const[metadinha, setMetadinha] = useState({erro: "", sucesso: ""})
+    const [buscarRegistros, setRegistro] = useState([])
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault() //Não deixa carregar a página
 
         if (user.nome.trim()===""){
@@ -29,6 +30,18 @@ function FormularioCadastro() {
             setMetadinha((dados) => ({...dados,erro: "O campo necessita de 11 dígitos"}))
             console.log(metadinha.erro)
             return 
+        }
+        try{
+        const resposta = await fetch ('https://localhost:3000/registros', {
+            method: 'POST', 
+            headers: {'Content-Type': 'https://localhost:3000/json'},
+            body: JSON.stringify ({nome,email,telefone})
+        })
+        const resultado = await resposta.json()
+        console.log(resultado)
+
+        }catch(error) {
+            console.log('Erro ao conectar ao servidor')
         }
     
         // setMetadinha('')
@@ -67,3 +80,10 @@ useEffect(() => {
     .then(res => res.json())
     .then (dados => console.log(dados))
 }, []) 
+     buscarRegistros(() => {
+    //     const resposta = await fetch ('https://localhost:3000/registros')
+    //     const dados = await resposta.json ()
+    //     setRegistro(dados) // Salva os dados no estado REACT 
+    // }
+        buscarRegistros() //roda uma vez na indicalização
+     },[])

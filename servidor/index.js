@@ -1,6 +1,8 @@
-const express = require('express')
+import express from 'express'
+import cors from 'cors'
 
-const servidor = express();
+const servidor = express()
+servidor.use (cors())
 servidor.use(express.json())
 
 
