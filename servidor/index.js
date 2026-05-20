@@ -9,13 +9,24 @@ servidor.use(express.json())
 const registros = ['Hello everynyan!'] // "DB" em tempo de execução
 
 servidor.post('/registros', (req, res) => {
-    const dados = req.body // pega o corpo da requisição 
 
         if(!dados.nome) {
             res.status(400).json({
                 erro: "Campo de nome é obrigatório!"
             })
         }
+
+    const nomeDuplicado = registros.find (r => r.nome.toLowerCase() === dados.nome.toLowerCase());
+    if (nomeDuplicado) {
+        return res.status(409).json({
+            mensagem: 'Nome já cadastrado'
+        })
+    }
+    const novoRegistro = { nome,email}
+    registros.push(novoRegistro)
+    return res.status(201).json(novoRegistro) // interrompe a função para duplicar 
+    
+
 
     console.log(`
         $(Dados da requisição! o que tem no corpo que o frontend me mandou: ${dados}`)

@@ -16,6 +16,8 @@ function FormularioCadastro() {
     const[user, setUser] = useState({nome: "", email: "", telefone: "", segundoTelefone:""})
     const[metadinha, setMetadinha] = useState({erro: "", sucesso: ""})
     const [buscarRegistros, setRegistro] = useState([])
+    const [enviando, setEnviando] = useState(false);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault() //Não deixa carregar a página
@@ -40,8 +42,19 @@ function FormularioCadastro() {
         const resultado = await resposta.json()
         console.log(resultado)
 
+        if (!resposta.ok){
+            setMetadinha(dados.mensagem || dados.erro);
+            return;
+        }
+        //sucesso
+        setMetadinha("")
+        setUser("")
+
         }catch(error) {
-            console.log('Erro ao conectar ao servidor')
+            console.log('Erro ao conectar com o servidor')
+        } finally {
+            //executa tanto no sucesso quanto no erro
+            setEnviando(false);
         }
     
         // setMetadinha('')
@@ -76,7 +89,7 @@ function FormularioCadastro() {
 export default FormularioCadastro;
 
 useEffect(() => {
-    fetch('https://localhost:3000')
+    fetch('http://localhost:5173/')
     .then(res => res.json())
     .then (dados => console.log(dados))
 }, []) 
