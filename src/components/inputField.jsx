@@ -1,4 +1,4 @@
-function InputField ({label, type, name, placeholder, value, onChange}){
+function InputField ({label, type, name, placeholder, value, onChange, onKeyDown}){
 
     return (
         <div>
@@ -9,6 +9,7 @@ function InputField ({label, type, name, placeholder, value, onChange}){
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
+                onKeyDown={onKeyDown}
             />
         </div>
     )

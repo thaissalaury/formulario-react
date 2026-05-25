@@ -130,7 +130,15 @@ function FormularioCadastro() {
             <form onSubmit={handleSubmit}>
                 {metadinha.erro && <p style={{ color: "red" }}>{metadinha.erro}</p>}
                 {metadinha.sucesso && <p style={{ color: "green" }}>{metadinha.sucesso}</p>}
-                <InputField label="Busca por nome: " type="text" name="buscaNome" placeholder="Digite para buscar" value={buscaNome} onChange={(e) => setBuscaNome(e.target.value)} />
+                <InputField
+                    label="Busca por nome: "
+                    type="text"
+                    name="buscaNome"
+                    placeholder="Digite para buscar"
+                    value={buscaNome}
+                    onChange={(e) => setBuscaNome(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+                />
                 {listaCarregando ? <p>Carregando registros...</p> : <p>{registrosLista.length} registro(s) encontrado(s)</p>}
                 <InputField label="Nome: " type="text" name="nome" placeholder="Digite seu nome" value={user.nome} onChange={(e) => setUser((dados) => ({ ...dados, nome: e.target.value }))} />
                 <InputField label="Email: " type="email" name="email" placeholder="email@empresa.com" value={user.email} onChange={(e) => setUser((dados) => ({ ...dados, email: e.target.value }))} />
