@@ -13,6 +13,7 @@ function FormularioCadastro() {
     const [registrosLista, setRegistrosLista] = useState([]);
     const [buscaNome, setBuscaNome] = useState('');
     const [listaCarregando, setListaCarregando] = useState(false);
+    const [editingId, setEditingId] = useState(null);
 
     // Função para buscar registros do backend, com filtro opcional por nome
     const carregarRegistros = async (nomeFiltro = buscaNome) => {
@@ -40,6 +41,12 @@ function FormularioCadastro() {
     useEffect(() => {
         carregarRegistros(buscaNome);
     }, [buscaNome]);
+
+    const handleEdit = (registro) => {
+        setEditingId(registro.id);
+        setUser({ nome: registro.nome || "", email: registro.email || "", telefone: registro.telefone || "", segundoTelefone: "" });
+        setMetadinha({ erro: "", sucesso: "" });
+    };
 
     // Exclui um registro via soft delete e atualiza a lista
     const handleDelete = async (id) => {
@@ -75,8 +82,10 @@ function FormularioCadastro() {
         setEnviando(true);
 
         try {
-            const resposta = await fetch('http://localhost:3000/registros', {
-                method: 'POST',
+            const metodo = editingId ? 'PUT' : 'POST';
+            const url = editingId ? `http://localhost:3000/registros/${editingId}` : 'http://localhost:3000/registros';
+            const resposta = await fetch(url, {
+                method: metodo,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     nome: user.nome.trim(),
@@ -98,14 +107,15 @@ function FormularioCadastro() {
                 return;
             }
 
-            setMetadinha({ erro: '', sucesso: 'Cadastro realizado com sucesso!' });
+            setMetadinha({ erro: '', sucesso: editingId ? 'Registro atualizado com sucesso!' : 'Cadastro realizado com sucesso!' });
             setUser({ nome: "", email: "", telefone: "", segundoTelefone: "" });
             setNumber('');
             setCidade('');
             setEstado('');
             setGenero('');
+            setEditingId(null);
 
-            // Recarrega a lista após novo registro
+            // Recarrega a lista após novo registro ou edição
             await carregarRegistros();
         } catch (error) {
             console.log('Erro ao conectar com o servidor');
@@ -127,7 +137,16 @@ function FormularioCadastro() {
                 <InputField label="Idade: " type="number" name="number" placeholder="19anos" value={number} onChange={(e) => setNumber(e.target.value)} />
                 <InputField label="Telefone" type="text" name="telefone" placeholder="(79)99999-9999" value={user.telefone} onChange={(e) => setUser((dados) => ({ ...dados, telefone: e.target.value }))} />
                 <InputField label="Gênero" type="text" name="genero" placeholder="Feminino ou Masculino" value={genero} onChange={(e) => setGenero(e.target.value)} />
-                <BotaoEnviar texto={enviando ? "Enviando..." : "Cadastrar"} disabled={enviando} />
+                <BotaoEnviar texto={enviando ? "Enviando..." : editingId ? "Salvar edição" : "Cadastrar"} disabled={enviando} />
+                {editingId && (
+                    <button type="button" onClick={() => {
+                        setEditingId(null);
+                        setUser({ nome: "", email: "", telefone: "", segundoTelefone: "" });
+                        setMetadinha({ erro: "", sucesso: "" });
+                    }} style={{ marginLeft: '8px' }}>
+                        Cancelar edição
+                    </button>
+                )}
             </form>
 
             <section>
@@ -136,7 +155,8 @@ function FormularioCadastro() {
                 <ul>
                     {registrosLista.map((registro) => (
                         <li key={registro.id}>
-                            <strong>{registro.nome}</strong> — {registro.email || 'Sem email'} — {registro.telefone || 'Sem telefone'}
+                            <strong>{registro.nome}</strong> (ID {registro.id}) — {registro.email || 'Sem email'} — {registro.telefone || 'Sem telefone'}
+                            <button type="button" onClick={() => handleEdit(registro)} style={{ marginLeft: '8px' }}>Editar</button>
                             <button type="button" onClick={() => handleDelete(registro.id)} style={{ marginLeft: '8px' }}>Excluir</button>
                         </li>
                     ))}
