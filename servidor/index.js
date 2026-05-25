@@ -5,8 +5,9 @@ const servidor = express()
 servidor.use (cors())
 servidor.use(express.json())
 
-
-const registros = [] // "DB" em tempo de execução
+// Armazena os registros em memória durante a execução
+const registros = []
+let proximoId = 1;
 
 servidor.post('/registros', (req, res) => {
     const { nome, email, telefone } = req.body || {};
@@ -61,6 +62,7 @@ servidor.post('/registros', (req, res) => {
     }
 
     const novoRegistro = {
+        id: proximoId++,
         nome: nomeTrim,
         email: email ? email.trim() : null,
         telefone: telefone ? telefone.trim() : null,
@@ -70,10 +72,31 @@ servidor.post('/registros', (req, res) => {
     return res.status(201).json(novoRegistro);
 });
 
+// GET /registros retorna apenas registros não apagados
+// Se query nome for fornecida, filtra por correspondência parcial no nome
 servidor.get('/registros', (req, res) => {
-    // Retorna registros não deletados
-    const lista = registros.filter(r => !r.deleted);
+    const busca = String(req.query.nome || '').trim().toLowerCase();
+    let lista = registros.filter(r => !r.deleted);
+    if (busca) {
+        lista = lista.filter(r => String(r.nome).toLowerCase().includes(busca));
+    }
     res.status(200).json(lista);
+});
+
+// DELETE /registros/:id marca o registro como deleted em vez de remover
+servidor.delete('/registros/:id', (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) {
+        return res.status(400).json({ erro: 'ID inválido.' });
+    }
+
+    const registro = registros.find(r => r.id === id && !r.deleted);
+    if (!registro) {
+        return res.status(404).json({ erro: 'Registro não encontrado.' });
+    }
+
+    registro.deleted = true;
+    return res.status(200).json({ mensagem: 'Registro removido com sucesso.' });
 });
 
 servidor.listen(3000, () => {
