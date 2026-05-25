@@ -19,7 +19,7 @@ function FormularioCadastro() {
     const carregarRegistros = async (nomeFiltro = buscaNome) => {
         setListaCarregando(true);
         try {
-            const url = new URL('http://localhost:3000/registros');
+            const url = new URL(' http://localhost:5173/');
             if (nomeFiltro && nomeFiltro.trim()) {
                 url.searchParams.set('nome', nomeFiltro.trim());
             }
@@ -51,7 +51,7 @@ function FormularioCadastro() {
     // Exclui um registro via soft delete e atualiza a lista
     const handleDelete = async (id) => {
         try {
-            const resposta = await fetch(`http://localhost:3000/registros/${id}`, { method: 'DELETE' });
+            const resposta = await fetch(` http://localhost:5173/${id}`, { method: 'DELETE' });
             const resultado = await resposta.json().catch(() => ({}));
             if (!resposta.ok) {
                 setMetadinha({ erro: resultado.erro || resultado.mensagem || 'Erro ao deletar registro.', sucesso: '' });
@@ -83,7 +83,7 @@ function FormularioCadastro() {
 
         try {
             const metodo = editingId ? 'PUT' : 'POST';
-            const url = editingId ? `http://localhost:3000/registros/${editingId}` : 'http://localhost:3000/registros';
+            const url = editingId ? ` http://localhost:5173/registros/${editingId}` : ' http://localhost:5173/registros';
             const resposta = await fetch(url, {
                 method: metodo,
                 headers: { 'Content-Type': 'application/json' },
