@@ -3,17 +3,19 @@ import BotaoEnviar from "./BotaoEnviar";
 import { useState, useEffect } from "react";
 
 function FormularioCadastro() {
-    const [number, setNumber] = useState('');
-    const [cidade, setCidade] = useState('');
-    const [estado, setEstado] = useState('');
-    const [genero, setGenero] = useState('');
-    const [user, setUser] = useState({ nome: "", email: "", telefone: "", segundoTelefone: "" });
-    const [metadinha, setMetadinha] = useState({ erro: "", sucesso: "" });
-    const [enviando, setEnviando] = useState(false);
-    const [registrosLista, setRegistrosLista] = useState([]);
-    const [buscaNome, setBuscaNome] = useState('');
-    const [listaCarregando, setListaCarregando] = useState(false);
-    const [editingId, setEditingId] = useState(null);
+    //const [number, setNumber] = useState('');
+    // const [cidade, setCidade] = useState('');
+    // const [estado, setEstado] = useState('');
+    // const [genero, setGenero] = useState('');
+     const [user, setUser] = useState({ nome: "", email: "", telefone: "", segundoTelefone: "" });
+     const {registro, carregando, criar, atualizar, deletar} = useState('')
+     const [ erroForm, setErroForm] = useState ('') // Erro de validação da tela 
+    // const [metadinha, setMetadinha] = useState({ erro: "", sucesso: "" });
+    // const [enviando, setEnviando] = useState(false);
+    // const [registrosLista, setRegistrosLista] = useState([]);
+    // const [buscaNome, setBuscaNome] = useState('');
+    // const [listaCarregando, setListaCarregando] = useState(false);
+    // const [editingId, setEditingId] = useState(null);
 
     // Função para buscar registros do backend, com filtro opcional por nome
     const carregarRegistros = async (nomeFiltro = buscaNome) => {
@@ -38,9 +40,9 @@ function FormularioCadastro() {
         }
     };
 
-    useEffect(() => {
-        carregarRegistros(buscaNome);
-    }, [buscaNome]);
+    // useEffect(() => {
+    //     carregarRegistros(buscaNome);
+    // }, [buscaNome]);
 
     const handleEdit = (registro) => {
         setEditingId(registro.id);
@@ -67,65 +69,76 @@ function FormularioCadastro() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMetadinha({ erro: "", sucesso: "" });
-
-        if (user.nome.trim() === "") {
-            setMetadinha({ erro: "O campo nome � obrigat�rio.", sucesso: "" });
-            return;
-        }
-
-        if (user.telefone.trim() !== "" && user.telefone.trim().length !== 11) {
-            setMetadinha({ erro: "O campo telefone precisa ter 11 d�gitos.", sucesso: "" });
-            return;
-        }
-
-        setEnviando(true);
-
-        try {
-            const metodo = editingId ? 'PUT' : 'POST';
-            const url = editingId ? ` http://localhost:5173/registros/${editingId}` : ' http://localhost:5173/registros';
-            const resposta = await fetch(url, {
-                method: metodo,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nome: user.nome.trim(),
-                    email: user.email.trim(),
-                    telefone: user.telefone.trim()
-                })
-            });
-
-            const resultado = await resposta.json().catch(() => ({}));
-            console.log(resultado);
-
-            if (resposta.status === 409) {
-                setMetadinha({ erro: resultado.mensagem || 'Registro duplicado.', sucesso: '' });
-                return;
+        try{
+            if(indiceEditando !== null) {
+                await atualizar (indiceEditando, { nome, email, telefone})
+            }else{
+                await criar ({ nome, email, telefone})
             }
+        } setErroForm('') // Limpa o erro
+        }catch(e) {
+        setErroForm(e.message) //Mostra o erro que o hook jogou 
+    }
+}
+    //     // setMetadinha({ erro: "", sucesso: "" });
 
-            if (!resposta.ok) {
-                setMetadinha({ erro: resultado.mensagem || resultado.erro || 'Erro ao cadastrar.', sucesso: '' });
-                return;
-            }
+    //     // if (user.nome.trim() === "") {
+    //     //     setMetadinha({ erro: "O campo nome é obrigatório.", sucesso: "" });
+    //     //     return;
+    //     // }
 
-            setMetadinha({ erro: '', sucesso: editingId ? 'Registro atualizado com sucesso!' : 'Cadastro realizado com sucesso!' });
-            setUser({ nome: "", email: "", telefone: "", segundoTelefone: "" });
-            setNumber('');
-            setCidade('');
-            setEstado('');
-            setGenero('');
-            setEditingId(null);
+    //     // if (user.telefone.trim() !== "" && user.telefone.trim().length !== 11) {
+    //     //     setMetadinha({ erro: "O campo telefone precisa ter 11 dgitos.", sucesso: "" });
+    //     //     return;
+    //     // }
 
-            // Recarrega a lista após novo registro ou edição
-            await carregarRegistros();
-        } catch (error) {
-            console.log('Erro ao conectar com o servidor');
-            setMetadinha({ erro: 'Erro ao conectar com o servidor.', sucesso: '' });
-        } finally {
-            setEnviando(false);
-        }
-    };
+    //     // setEnviando(true);
 
-    return (
+    //     try {
+    //         const metodo = editingId ? 'PUT' : 'POST';
+    //         const url = editingId ? ` http://localhost:5173/registros/${editingId}` : ' http://localhost:5173/registros';
+    //         const resposta = await fetch(url, {
+    //             method: metodo,
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({
+    //                 nome: user.nome.trim(),
+    //                 email: user.email.trim(),
+    //                 telefone: user.telefone.trim()
+    //             })
+    //         });
+
+    //         const resultado = await resposta.json().catch(() => ({}));
+    //         console.log(resultado);
+
+    //         if (resposta.status === 409) {
+    //             setMetadinha({ erro: resultado.mensagem || 'Registro duplicado.', sucesso: '' });
+    //             return;
+    //         }
+
+    //         if (!resposta.ok) {
+    //             setMetadinha({ erro: resultado.mensagem || resultado.erro || 'Erro ao cadastrar.', sucesso: '' });
+    //             return;
+    //         }
+
+    //         setMetadinha({ erro: '', sucesso: editingId ? 'Registro atualizado com sucesso!' : 'Cadastro realizado com sucesso!' });
+    //         setUser({ nome: "", email: "", telefone: "", segundoTelefone: "" });
+    //         setNumber('');
+    //         setCidade('');
+    //         setEstado('');
+    //         setGenero('');
+    //         setEditingId(null);
+
+    //         // Recarrega a lista após novo registro ou edição
+    //         await carregarRegistros();
+    //     } catch (error) {
+    //         console.log('Erro ao conectar com o servidor');
+    //         setMetadinha({ erro: 'Erro ao conectar com o servidor.', sucesso: '' });
+    //     } finally {
+    //         setEnviando(false);
+    //     }
+    // };
+
+    // return (
         <div>
             <form onSubmit={handleSubmit}>
                 {metadinha.erro && <p style={{ color: "red" }}>{metadinha.erro}</p>}
