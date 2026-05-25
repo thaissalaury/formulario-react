@@ -6,47 +6,34 @@ servidor.use (cors())
 servidor.use(express.json())
 
 
-const registros = ['Hello everynyan!'] // "DB" em tempo de execução
+const registros = [] // "DB" em tempo de execução
 
 servidor.post('/registros', (req, res) => {
+    const { nome, email } = req.body || {};
 
-        if(!dados.nome) {
-            res.status(400).json({
-                erro: "Campo de nome é obrigatório!"
-            })
-        }
-
-    const nomeDuplicado = registros.find (r => r.nome.toLowerCase() === dados.nome.toLowerCase());
-    if (nomeDuplicado) {
-        return res.status(409).json({
-            mensagem: 'Nome já cadastrado'
+    if (!nome || typeof nome !== 'string' || !nome.trim()) {
+        return res.status(400).json({
+            erro: 'Campo de nome é obrigatório!'
         })
     }
-    const novoRegistro = { nome,email}
-    registros.push(novoRegistro)
-    return res.status(201).json(novoRegistro) // interrompe a função para duplicar 
-    
 
+    // Normaliza para comparação: trim + lowercase
+    const nomeNorm = nome.trim().toLowerCase();
+    const existente = registros.find(r => String(r.nome).trim().toLowerCase() === nomeNorm && !r.deleted);
+    if (existente) {
+        return res.status(409).json({ mensagem: 'Nome já cadastrado' })
+    }
 
-    console.log(`
-        $(Dados da requisição! o que tem no corpo que o frontend me mandou: ${dados}`)
-        registros.push(dados) // simulando salvar dados no banco
+    const novoRegistro = { nome: nome.trim(), email: email || null, deleted: false };
+    registros.push(novoRegistro);
+    return res.status(201).json(novoRegistro);
+});
 
-  res.status(201).json({
-    sucesso: true,
-    mensagem: "Registro Criado com Sucesso!",
-    dados: dados
-
-  })
-
-})
-
- servidor.get('/registros', (req, res) => {
-    res.status(200).json({
-        mensagem: "Vamos nessa, Servidor no ar BEBE!",
-        status: "ok 100%"
-    });
- });
+servidor.get('/registros', (req, res) => {
+    // Retorna registros não deletados
+    const lista = registros.filter(r => !r.deleted);
+    res.status(200).json(lista);
+});
 
 servidor.listen(3000, () => {
     console.log('servidor tá massa https://localhost:3000')
